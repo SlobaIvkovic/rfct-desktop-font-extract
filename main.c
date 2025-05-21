@@ -52,7 +52,7 @@ int main()
 	
 	
 	
-	unsigned char fontData[500];
+	unsigned char fontData[5000];
 	int fontDataIndex = 0;
 	memset(fontData, 0, sizeof(fontData));
 	uint32_t i = 0;
@@ -68,11 +68,13 @@ int main()
 	printf("**********************************************************");
 	int j = 0;
 	i=0;
-	for(i = 0; i < 0x0430-0x0402; i++)
+	for(i = 0; i < (0x0430-0x0402)*47; i++)
 	{
 		printf("0x%02x", fontData[i]);
-		if(!(i%46))
+		j++;
+		if(j==46)
 		{
+			j=0;
 			printf("\n");
 		}
 	}
