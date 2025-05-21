@@ -35,7 +35,7 @@ int main()
 
 	FT_Library  library;
 	FT_Face     face;
-
+/*
 	fex_fontOpen(&library, &face);
 	
 	fex_fontInfo(library, face);
@@ -45,8 +45,8 @@ int main()
 	
 	FT_Done_Face    ( face );
     FT_Done_FreeType( library );
-
-/*	int error = FT_Init_FreeType( &library );
+*/
+	int error = FT_Init_FreeType( &library );
 	if ( error )
 	{
  	// ... an error occurred during library initialization ...
@@ -197,7 +197,7 @@ int main()
 	}
 	FT_Done_Face    ( face );
   FT_Done_FreeType( library );
-*/
+
 }
 
 
@@ -496,6 +496,45 @@ int fex_setFontSize(FT_Library library, FT_Face face, int height, int horizontal
 	}
 }
 
+/*
+int fex_renderFont()
+{
+	
+ 	// Ucitaj indeks glifa koji prethodi prvom slovu nase azbuke a to je u+0401, kada se inkrementira indeks u petlji dolazimo do naseg slova Dj
+ 	// koje je prvo prvo u skripti https://en.wikipedia.org/wiki/Cyrillic_(Unicode_block)
+ 	
+ 	
+ 	
+ 	uint32_t ccode = 0x0401;     // Za srpski
+//	uint32_t ccode = 0x0620;     // Za arapsk
+ 	
+ 	FT_UInt glyph_index = FT_Get_Char_Index(face, ccode);
+ 	
+ 	printf("charcode = %d\n", glyph_index);
+ 	
+ 	glyph_index = 409;
+
+ 	int fontNum = 0;
+ 	printf("____________________________________________\n");
+ 	for(fontNum = 0; fontNum < 0x042F - 0x0401; fontNum++)     // Za srpski
+//	for(fontNum = 0; fontNum < 0x065F - 0x0621; fontNum++)
+ 	{
+ 	
+ 		// sada smo na Dj
+// 		glyph_index++;
+ 	
+		ccode++;
+		glyph_index = FT_Get_Char_Index(face, ccode);
+		
+ 		error = FT_Load_Glyph(face, glyph_index, FT_LOAD_DEFAULT );  
+	
+	
+		error = FT_Render_Glyph( face->glyph, FT_RENDER_MODE_MONO);
+		if(error)
+		{
+			printf("Rendering failed\n");
+		}
+}*/
 // Grčki Alfabet
 // Gruzijski Modern (Mkherduli)
 // Jevrejski
