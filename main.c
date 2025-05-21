@@ -31,6 +31,7 @@ int fex_setFontSize(FT_Library library, FT_Face face, int height, int horizontal
 int fex_renderFont(FT_Library library, FT_Face face, uint32_t firstCharCode, unsigned fontRangeStart, unsigned fontRangeEnd);
 
 int fex_renderSingleGlyph(FT_Library library, FT_Face face, uint32_t ccode);
+void fex_oled_CreateFontFile(unsigned char* fontData, int greatestChar);
 
 // https://www.fontsquirrel.com/fonts/Metro             fonts download site
 
@@ -51,7 +52,7 @@ int main()
 	fex_setFontSize(library, face, 10, 150, 150);
 	
 	
-	
+	int greatestChar;
 	unsigned char fontData[5000];
 	int fontDataIndex = 0;
 	memset(fontData, 0, sizeof(fontData));
@@ -61,23 +62,14 @@ int main()
 	{
 		fex_renderSingleGlyph(library, face, ccode);
 		ccode++;
-		fex_oled_createOLED1306character(face, fontData, &fontDataIndex);
+		fex_oled_createOLED1306character(face, fontData, &fontDataIndex, &greatestChar);
 //		AltCreateFontLeter(face->glyph->metrics.width/64, face->glyph->metrics.height/64, face->glyph->bitmap.pitch, (unsigned char*)face->glyph->bitmap.buffer);
 	}
 	
-	printf("**********************************************************");
-	int j = 0;
-	i=0;
-	for(i = 0; i < (0x0430-0x0402)*47; i++)
-	{
-		printf("0x%02x", fontData[i]);
-		j++;
-		if(j==46)
-		{
-			j=0;
-			printf("\n");
-		}
-	}
+	printf("**********************************************************\n\n");
+	printf("\n Greatest char %d", greatestChar);
+	fex_oled_CreateFontFile(fontData, greatestChar);
+	
 	
 //	fex_renderFont(library, face, 0x0401, 0x0401, 0x042f);
 	
@@ -631,16 +623,27 @@ int fex_renderSingleGlyph(FT_Library library, FT_Face face, uint32_t ccode)
 		}
 }
 
-void fex_oled_CreateFontFile()
+void fex_oled_CreateFontFile(unsigned char* fontData, int greatestChar)
 {
-/*	fprintf(fp, "0x%02x, ", byteArray[i]);
-		i++;
+	printf("\n Greatest char %d", greatestChar);
+	FILE* fp;
+	fp = fopen("../fontincludefiles/genericfont.h", "w");
+	
+	fprintf(fp, "#ifndef GENERIC_FONT_H\n#define GENERIC_FONT_H\n\nconst unsigned char font[] = {\n");
+	
+	int j = 0;
+	int i=0;
+	for(i = 0; i < (0x0430-0x0402)*greatestChar; i++)
+	{
+		fprintf(fp,"0x%02x, ", fontData[i]);
+		j++;
+		if(j==greatestChar)
+		{
+			j=0;
+			fprintf(fp,"\n");
+		}
 	}
-	printf("\n");
-	fprintf(fp, "\n");
-	fprintf(fp, "};\n");
-	fprintf(fp,"#endif\n\n");
-	fclose(fp);*/
+	fprintf(fp,"};\n\n#endif\n");
 }
 // Grčki Alfabet
 // Gruzijski Modern (Mkherduli)
