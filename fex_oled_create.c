@@ -6,7 +6,7 @@
 #include FT_FREETYPE_H
 #include FT_GLYPH_H
 
-void fex_oled_createOLED1306character(FT_Face face)
+void fex_oled_createOLED1306character(FT_Face face, unsigned char* fontData, int* fontDataIndex)
 {
 	
 	unsigned int width  = face->glyph->metrics.width/64;
@@ -136,6 +136,8 @@ height = height-8;
 		while(i < 47)    // i < 8
 	{
 		printf("0x%02x, ", byteArray[i]);
+		fontData[*fontDataIndex] = byteArray[i];
+		(*fontDataIndex)++;
 		
 		i++;
 	}

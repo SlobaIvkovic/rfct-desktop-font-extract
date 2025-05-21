@@ -50,14 +50,31 @@ int main()
 	
 	fex_setFontSize(library, face, 10, 150, 150);
 	
+	
+	
+	unsigned char fontData[500];
+	int fontDataIndex = 0;
+	memset(fontData, 0, sizeof(fontData));
 	uint32_t i = 0;
 	uint32_t ccode = 0x0402;
 	for(i = 0; i < 0x0430 - 0x0402; i++)
 	{
 		fex_renderSingleGlyph(library, face, ccode);
 		ccode++;
-		fex_oled_createOLED1306character(face);
+		fex_oled_createOLED1306character(face, fontData, &fontDataIndex);
 //		AltCreateFontLeter(face->glyph->metrics.width/64, face->glyph->metrics.height/64, face->glyph->bitmap.pitch, (unsigned char*)face->glyph->bitmap.buffer);
+	}
+	
+	printf("**********************************************************");
+	int j = 0;
+	i=0;
+	for(i = 0; i < 0x0430-0x0402; i++)
+	{
+		printf("0x%02x", fontData[i]);
+		if(!(i%46))
+		{
+			printf("\n");
+		}
 	}
 	
 //	fex_renderFont(library, face, 0x0401, 0x0401, 0x042f);
