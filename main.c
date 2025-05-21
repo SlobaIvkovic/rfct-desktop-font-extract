@@ -21,7 +21,7 @@
 void CreateFontLeter(unsigned int width, unsigned int height, unsigned int pitch, unsigned char bitmap[]);
 void AltCreateFontLeter(unsigned int width, int height, unsigned int pitch, unsigned char bitmap[]);
 
-void fex_fontOpen(FT_Library* library, FT_Face* face);
+void fex_fontOpen(FT_Library* library, FT_Face* face, char* fontFile);
 void fex_fontInfo(FT_Library library, FT_Face face);
 int fex_findGreatestChar(FT_Library library, FT_Face face, uint32_t firstCharCode, unsigned fontRangeStart, unsigned fontRangeEnd);
 
@@ -46,7 +46,7 @@ int main()
 	unsigned char byteArray[500];
 	unsigned int byteArrayIndex = 0;
 
-	fex_fontOpen(&library, &face);
+	fex_fontOpen(&library, &face, "../fontfiles/Calibri.ttf");
 	
 	fex_fontInfo(library, face);
 	
@@ -454,7 +454,7 @@ height = height-8;
 
 
 // Must use pointer (of pointers acctually) for the initialization, FT_ variables must be initialized on their exact address
-void fex_fontOpen(FT_Library* library, FT_Face* face)
+void fex_fontOpen(FT_Library* library, FT_Face* face, char* fontFile)
 {
 
 	int error = FT_Init_FreeType( library );
@@ -464,9 +464,9 @@ void fex_fontOpen(FT_Library* library, FT_Face* face)
 	}
 
 
-	char fontfile[] = "../fontfiles/Coolvetica_Rg_Cond.otf";
+//	char fontfile[] = "../fontfiles/Coolvetica_Rg_Cond.otf";
 	
-	error = FT_New_Face( *library, fontfile, 0, face );
+	error = FT_New_Face( *library, fontFile, 0, face );
 	if ( error == FT_Err_Unknown_File_Format )
 	{
   	//	... the font file could be opened and read, but it appears
@@ -477,7 +477,7 @@ void fex_fontOpen(FT_Library* library, FT_Face* face)
 	{
   	//	... another error code means that the font file could not
   	//	... be opened or read, or that it is broken...
-  		printf("ERROR 2\n Cannot open file: %s", fontfile);
+  		printf("ERROR 2\n Cannot open file: %s", fontFile);
 	}
 	else
 	{
@@ -677,7 +677,7 @@ void fex_oled_CreateFontFile(unsigned char* fontData, int greatestChar)
 	FILE* fp;
 	fp = fopen("../fontincludefiles/genericfont.h", "w");
 	
-	fprintf(fp, "#ifndef GENERIC_FONT_H\n#define GENERIC_FONT_H\n\nconst unsigned char font[] = {\n");
+	fprintf(fp, "#ifndef GENERIC_FONT_H\n#define GENERIC_FONT_H\n\nunsigned char fontOffset = % d;\n\nconst unsigned char font[] = {\n", greatestChar);
 	
 	int j = 0;
 	int i=0;
