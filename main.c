@@ -15,7 +15,7 @@
 #include <stdint.h>
 #include FT_FREETYPE_H
 #include FT_GLYPH_H
-
+// 0x042f 0x0401
 
 void CreateFontLeter(unsigned int width, unsigned int height, unsigned int pitch, unsigned char bitmap[]);
 void AltCreateFontLeter(unsigned int width, int height, unsigned int pitch, unsigned char bitmap[]);
@@ -27,6 +27,8 @@ void fex_fontInfo(FT_Library library, FT_Face face);
 // If you're working in pixel units and want precise control (e.g. for pixel-perfect UIs), you might use FT_Set_Pixel_Sizes() instead — that sets size directly in pixels, not points.
 int fex_setFontSize(FT_Library library, FT_Face face, int height, int horizontalDPI, int verticalDPI);
 
+int fex_renderFont(FT_Library library, FT_Face face, uint32_t firstCharCode, unsigned fontRangeStart, unsigned fontRangeEnd);
+
 // https://www.fontsquirrel.com/fonts/Metro             fonts download site
 
 int main()
@@ -35,18 +37,21 @@ int main()
 
 	FT_Library  library;
 	FT_Face     face;
-/*
+
 	fex_fontOpen(&library, &face);
 	
 	fex_fontInfo(library, face);
 	
 	fex_setFontSize(library, face, 10, 150, 150);
 	
+	fex_renderFont(library, face, 0x0401, 0x0401, 0x042f);
+	
+	AltCreateFontLeter(face->glyph->metrics.width/64, face->glyph->metrics.height/64, face->glyph->bitmap.pitch, (unsigned char*)face->glyph->bitmap.buffer);
 	
 	FT_Done_Face    ( face );
     FT_Done_FreeType( library );
-*/
-	int error = FT_Init_FreeType( &library );
+
+/*	int error = FT_Init_FreeType( &library );
 	if ( error )
 	{
  	// ... an error occurred during library initialization ...
@@ -197,7 +202,7 @@ int main()
 	}
 	FT_Done_Face    ( face );
   FT_Done_FreeType( library );
-
+*/
 }
 
 
@@ -496,16 +501,18 @@ int fex_setFontSize(FT_Library library, FT_Face face, int height, int horizontal
 	}
 }
 
-/*
-int fex_renderFont()
+
+int fex_renderFont(FT_Library library, FT_Face face, uint32_t firstCharCode, unsigned fontRangeStart, unsigned fontRangeEnd)
 {
+	int error;
+	
 	
  	// Ucitaj indeks glifa koji prethodi prvom slovu nase azbuke a to je u+0401, kada se inkrementira indeks u petlji dolazimo do naseg slova Dj
  	// koje je prvo prvo u skripti https://en.wikipedia.org/wiki/Cyrillic_(Unicode_block)
  	
  	
- 	
- 	uint32_t ccode = 0x0401;     // Za srpski
+ 	uint32_t ccode = firstCharCode;
+// 	uint32_t ccode = 0x0401;     // Za srpski
 //	uint32_t ccode = 0x0620;     // Za arapsk
  	
  	FT_UInt glyph_index = FT_Get_Char_Index(face, ccode);
@@ -516,7 +523,7 @@ int fex_renderFont()
 
  	int fontNum = 0;
  	printf("____________________________________________\n");
- 	for(fontNum = 0; fontNum < 0x042F - 0x0401; fontNum++)     // Za srpski
+ 	for(fontNum = 0; fontNum < fontRangeEnd - fontRangeStart; fontNum++)     // Za srpski
 //	for(fontNum = 0; fontNum < 0x065F - 0x0621; fontNum++)
  	{
  	
@@ -533,8 +540,12 @@ int fex_renderFont()
 		if(error)
 		{
 			printf("Rendering failed\n");
+			return error;
 		}
-}*/
+	}
+	printf("Render success\n");
+	return error;
+}
 // Grčki Alfabet
 // Gruzijski Modern (Mkherduli)
 // Jevrejski
