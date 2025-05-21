@@ -15,7 +15,8 @@
 #include <stdint.h>
 #include FT_FREETYPE_H
 #include FT_GLYPH_H
-// 0x042f 0x0401
+
+#include "fex_oled_create.h"
 
 void CreateFontLeter(unsigned int width, unsigned int height, unsigned int pitch, unsigned char bitmap[]);
 void AltCreateFontLeter(unsigned int width, int height, unsigned int pitch, unsigned char bitmap[]);
@@ -29,6 +30,8 @@ int fex_setFontSize(FT_Library library, FT_Face face, int height, int horizontal
 
 int fex_renderFont(FT_Library library, FT_Face face, uint32_t firstCharCode, unsigned fontRangeStart, unsigned fontRangeEnd);
 
+int fex_renderSingleGlyph(FT_Library library, FT_Face face, uint32_t ccode);
+
 // https://www.fontsquirrel.com/fonts/Metro             fonts download site
 
 int main()
@@ -37,6 +40,9 @@ int main()
 
 	FT_Library  library;
 	FT_Face     face;
+	
+	unsigned char byteArray[500];
+	unsigned int byteArrayIndex = 0;
 
 	fex_fontOpen(&library, &face);
 	
@@ -44,7 +50,17 @@ int main()
 	
 	fex_setFontSize(library, face, 10, 150, 150);
 	
-	fex_renderFont(library, face, 0x0401, 0x0401, 0x042f);
+	uint32_t i = 0;
+	uint32_t ccode = 0x0402;
+	for(i = 0; i < 0x0430 - 0x0402; i++)
+	{
+		fex_renderSingleGlyph(library, face, ccode);
+		ccode++;
+		fex_oled_createOLED1306character(face);
+//		AltCreateFontLeter(face->glyph->metrics.width/64, face->glyph->metrics.height/64, face->glyph->bitmap.pitch, (unsigned char*)face->glyph->bitmap.buffer);
+	}
+	
+//	fex_renderFont(library, face, 0x0401, 0x0401, 0x042f);
 	
 	
 	
@@ -208,6 +224,14 @@ int main()
 
 void CreateFontLeter(unsigned int width, unsigned int height, unsigned int pitch, unsigned char bitmap[])
 {
+	FILE* fp;
+	fp = fopen("../fontincludefiles/genericfont.h", "w");
+	
+	// Introduce FILENAME as parameter and capitalize letter to create header file
+	
+	fprintf(fp, "#ifndef THIS_HFILE_H\n#define THIS_HFILE_H\n#endif\n\n");
+	fprintf(fp, "const unsigned char font[] = {\n");
+	
 //	printf("Width: %d Height: %d\n", width, height);
 	unsigned char byteArray[500];
 	
@@ -263,14 +287,29 @@ void CreateFontLeter(unsigned int width, unsigned int height, unsigned int pitch
 	
 	while(i < 8)    // i < 8
 	{
-		printf("0x%02x, ", byteArray[i++]);
+		printf("0x%02x, ", byteArray[i]);
+		fprintf(fp, "%s", byteArray[i]);
+		i++;
 	}
 	printf("\n");
+	fprintf(fp, "\n");
+	fprintf(fp, "};\n");
 	
 }
 
 void AltCreateFontLeter(unsigned int width, int height, unsigned int pitch, unsigned char bitmap[])
 {
+	FILE* fp;
+	fp = fopen("../fontincludefiles/genericfont.h", "w");
+	if(fp == NULL)
+	{
+		printf("error opening fontfile");
+	}
+	
+	// Introduce FILENAME as parameter and capitalize letter to create header file
+	
+	fprintf(fp, "#ifndef THIS_HFILE_H\n#define THIS_HFILE_H\n\n");
+	fprintf(fp, "const unsigned char font[] = {\n");
 	//	printf("Width: %d Height: %d\n", width, height);
 	unsigned char byteArray[500];
 	
@@ -384,11 +423,17 @@ height = height-8;
 	
 	
 //	while(i < 47)    // i < 8 
-	while(i<47)
+		while(i < 47)    // i < 8
 	{
-		printf("0x%02x, ", byteArray[i++]);
+		printf("0x%02x, ", byteArray[i]);
+		fprintf(fp, "0x%02x, ", byteArray[i]);
+		i++;
 	}
 	printf("\n");
+	fprintf(fp, "\n");
+	fprintf(fp, "};\n");
+	fprintf(fp,"#endif\n\n");
+	fclose(fp);
 }
 
 
@@ -546,6 +591,37 @@ int fex_renderFont(FT_Library library, FT_Face face, uint32_t firstCharCode, uns
 	}
 	printf("Render success\n");
 	return error;
+}
+
+int fex_renderSingleGlyph(FT_Library library, FT_Face face, uint32_t ccode)
+{
+	int error;
+	    ccode;
+	    FT_UInt glyph_index = FT_Get_Char_Index(face, ccode);
+	    
+	//	glyph_index = FT_Get_Char_Index(face, ccode);
+		
+ 		error = FT_Load_Glyph(face, glyph_index, FT_LOAD_DEFAULT );  
+	
+	
+		error = FT_Render_Glyph( face->glyph, FT_RENDER_MODE_MONO);
+		if(error)
+		{
+			printf("Rendering failed\n");
+			return error;
+		}
+}
+
+void fex_oled_CreateFontFile()
+{
+/*	fprintf(fp, "0x%02x, ", byteArray[i]);
+		i++;
+	}
+	printf("\n");
+	fprintf(fp, "\n");
+	fprintf(fp, "};\n");
+	fprintf(fp,"#endif\n\n");
+	fclose(fp);*/
 }
 // Grčki Alfabet
 // Gruzijski Modern (Mkherduli)
