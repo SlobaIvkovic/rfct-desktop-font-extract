@@ -46,7 +46,7 @@ int main()
 	
 	fex_renderFont(library, face, 0x0401, 0x0401, 0x042f);
 	
-	AltCreateFontLeter(face->glyph->metrics.width/64, face->glyph->metrics.height/64, face->glyph->bitmap.pitch, (unsigned char*)face->glyph->bitmap.buffer);
+	
 	
 	FT_Done_Face    ( face );
     FT_Done_FreeType( library );
@@ -542,6 +542,7 @@ int fex_renderFont(FT_Library library, FT_Face face, uint32_t firstCharCode, uns
 			printf("Rendering failed\n");
 			return error;
 		}
+		AltCreateFontLeter(face->glyph->metrics.width/64, face->glyph->metrics.height/64, face->glyph->bitmap.pitch, (unsigned char*)face->glyph->bitmap.buffer);
 	}
 	printf("Render success\n");
 	return error;
