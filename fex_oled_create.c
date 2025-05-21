@@ -6,7 +6,7 @@
 #include FT_FREETYPE_H
 #include FT_GLYPH_H
 
-void fex_oled_createOLED1306character(FT_Face face, unsigned char* fontData, int* fontDataIndex, int* greatestChar)
+void fex_oled_createOLED1306character(FT_Face face, unsigned char* fontData, int* fontDataIndex, int greatestChar)
 {
 	
 	unsigned int width  = face->glyph->metrics.width/64;
@@ -14,18 +14,6 @@ void fex_oled_createOLED1306character(FT_Face face, unsigned char* fontData, int
 	unsigned int pitch  = face->glyph->bitmap.pitch;
 	unsigned char* bitmap = (unsigned char*)face->glyph->bitmap.buffer;
 	// Introduce FILENAME as parameter and capitalize letter to create header file
-	
-	*greatestChar = height * pitch;
-	
-	static int auxGreatestChar;
-	if(*greatestChar > auxGreatestChar)
-	{
-		auxGreatestChar = *greatestChar;
-	}
-	else
-	{
-		*greatestChar = auxGreatestChar;
-	}
 	
 	
 		printf("Width: %d Height: %d\n", width, height);
@@ -145,7 +133,7 @@ height = height-8;
 	
 	
 //	while(i < 47)    // i < 8 
-		while(i < 47)    // i < 8
+		while(i < greatestChar)    // i < 8
 	{
 		printf("0x%02x, ", byteArray[i]);
 		fontData[*fontDataIndex] = byteArray[i];

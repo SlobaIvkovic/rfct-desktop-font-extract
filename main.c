@@ -23,6 +23,7 @@ void AltCreateFontLeter(unsigned int width, int height, unsigned int pitch, unsi
 
 void fex_fontOpen(FT_Library* library, FT_Face* face);
 void fex_fontInfo(FT_Library library, FT_Face face);
+int fex_findGreatestChar(FT_Library library, FT_Face face, uint32_t firstCharCode, unsigned fontRangeStart, unsigned fontRangeEnd);
 
 // Pro Tip
 // If you're working in pixel units and want precise control (e.g. for pixel-perfect UIs), you might use FT_Set_Pixel_Sizes() instead — that sets size directly in pixels, not points.
@@ -51,8 +52,11 @@ int main()
 	
 	fex_setFontSize(library, face, 10, 150, 150);
 	
+	int greatestChar = fex_findGreatestChar(library, face, 0x0402, 0x0402, 0x0430);
+	system("pause");
 	
-	int greatestChar;
+	
+	
 	unsigned char fontData[5000];
 	int fontDataIndex = 0;
 	memset(fontData, 0, sizeof(fontData));
@@ -62,7 +66,7 @@ int main()
 	{
 		fex_renderSingleGlyph(library, face, ccode);
 		ccode++;
-		fex_oled_createOLED1306character(face, fontData, &fontDataIndex, &greatestChar);
+		fex_oled_createOLED1306character(face, fontData, &fontDataIndex, greatestChar);
 //		AltCreateFontLeter(face->glyph->metrics.width/64, face->glyph->metrics.height/64, face->glyph->bitmap.pitch, (unsigned char*)face->glyph->bitmap.buffer);
 	}
 	
@@ -621,6 +625,50 @@ int fex_renderSingleGlyph(FT_Library library, FT_Face face, uint32_t ccode)
 			printf("Rendering failed\n");
 			return error;
 		}
+}
+
+int fex_findGreatestChar(FT_Library library, FT_Face face, uint32_t firstCharCode, unsigned fontRangeStart, unsigned fontRangeEnd)
+{
+	int error;
+	int greatestChar;
+	int prevGreatestChar = 0;
+	uint32_t ccode = firstCharCode;
+
+ 	FT_UInt glyph_index; 
+
+ 	int fontNum = 0;
+ 	for(fontNum = 0; fontNum < fontRangeEnd - fontRangeStart; fontNum++)
+ 	{
+ 	
+		glyph_index = FT_Get_Char_Index(face, ccode);
+		
+ 		error = FT_Load_Glyph(face, glyph_index, FT_LOAD_DEFAULT );  
+	
+	
+		error = FT_Render_Glyph( face->glyph, FT_RENDER_MODE_MONO);
+		if(error)
+		{
+			printf("Rendering failed\n");
+			return error;
+		}
+		
+		ccode++;
+		
+		printf("\nHeight %d Pitch %d\n", face->glyph->metrics.height/64, face->glyph->bitmap.pitch);
+		system("pause");
+		greatestChar = face->glyph->metrics.height/64 * face->glyph->bitmap.pitch;
+		if(greatestChar > prevGreatestChar)
+		{
+			prevGreatestChar = greatestChar;
+		}
+		else
+		{
+			greatestChar = prevGreatestChar;
+		}
+
+	}
+	printf("\n Greatest char in the font file is %d bytes\n", greatestChar);
+	return greatestChar;
 }
 
 void fex_oled_CreateFontFile(unsigned char* fontData, int greatestChar)
